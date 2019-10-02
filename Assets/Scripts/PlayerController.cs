@@ -108,14 +108,14 @@ public class PlayerController : MonoBehaviour
 
     public void CollectHealth(int points)
     {
-        this.healthPoints = points;
+        this.healthPoints += points;
         if (this.healthPoints >= MAX_HEALTH)
             healthPoints = MAX_HEALTH;
     }
 
     public void CollectMana(int points)
     {
-        this.manaPoints = points;
+        this.manaPoints += points;
         if (this.manaPoints >= MAX_MANA)
             manaPoints = MAX_MANA;
     }
