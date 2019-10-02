@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
         MIN_HEALTH = 10, 
         MIN_MANA = 0;
 
+    public const int SUPERJUMP_COST = 5;
+    public const float SUPERJUMP_FORCE = 1.5f;
+
     void Awake()
     {
         playerRigidbody = GetComponent<Rigidbody2D>();
@@ -58,18 +61,18 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        bool isTouching = IsTouchingTheGround();
         if (Input.GetButtonDown("Jump"))
         {
-            if (isTouching)
-            {
-                Jump();
-            }
+             Jump(false);
+        }
+        if (Input.GetButtonDown("SuperJump"))
+        {
+            Jump(true);
         }
 
         Debug.DrawRay(transform.position, Vector2.down * 1.5f, Color.red);
 
-        animator.SetBool(STATE_ON_THE_GROUND, isTouching);
+        animator.SetBool(STATE_ON_THE_GROUND, IsTouchingTheGround());
     }
 
     void FixedUpdate()
@@ -87,11 +90,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Jump()
+    void Jump(bool superJump)
     {
+        float jumpForceFactor = jumpForce;
+        if(superJump && manaPoints >= SUPERJUMP_COST && IsTouchingTheGround())
+        {
+            manaPoints -= SUPERJUMP_COST;
+            jumpForceFactor *= SUPERJUMP_FORCE;
+        }
+
         if (GameManager.sharedInstance.currentGameState == GameState.inGame)
         {
-            playerRigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            if (IsTouchingTheGround())
+            {
+                playerRigidbody.AddForce(Vector2.up * jumpForceFactor, ForceMode2D.Impulse);
+            }
         }
     }
 
@@ -102,6 +115,14 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
+        float travelledDistance = GetTravelledDistance();
+        float previousMaxDistance = PlayerPrefs.GetFloat("maxscore", 0f);
+
+        if(travelledDistance > previousMaxDistance)
+        {
+            PlayerPrefs.SetFloat("maxscore", travelledDistance);
+        }
+
         animator.SetBool(STATE_ALIVE, false);
         GameManager.sharedInstance.GameOver();
     }
@@ -128,5 +149,10 @@ public class PlayerController : MonoBehaviour
     public int GetMana()
     {
         return manaPoints;
+    }
+
+    public float GetTravelledDistance()
+    {
+        return transform.position.x - startPosition.x;
     }
 }
