@@ -18,10 +18,13 @@ public class Collectable : MonoBehaviour
     private CircleCollider2D circleCollider;
     private bool hasBennCollected;
 
+    GameObject player;
+
     private void Awake()
     {
         sprite = GetComponent<SpriteRenderer>();
         circleCollider = GetComponent<CircleCollider2D>();
+        player = GameObject.Find("Player");
 
     }
 
@@ -49,10 +52,10 @@ public class Collectable : MonoBehaviour
                 GameManager.sharedInstance.CollectObject(this);
                 break;
             case CollectableType.healthPotion:
-                GameManager.sharedInstance.CollectObject(this);
+                player.GetComponent<PlayerController>().CollectHealth(value);
                 break;
             case CollectableType.manaPotion:
-                GameManager.sharedInstance.CollectObject(this);
+                player.GetComponent<PlayerController>().CollectMana(value);
                 break;
         }
     }
