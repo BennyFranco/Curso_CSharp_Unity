@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 6f;
     public float runningSpeed = 2f;
 
+    public float jumpRaycastDistance = 1.5f;
+
     public LayerMask groundMask;
 
     private Rigidbody2D playerRigidbody;
@@ -70,7 +72,7 @@ public class PlayerController : MonoBehaviour
             Jump(true);
         }
 
-        Debug.DrawRay(transform.position, Vector2.down * 1.5f, Color.red);
+        Debug.DrawRay(transform.position, Vector2.down * jumpRaycastDistance, Color.red);
 
         animator.SetBool(STATE_ON_THE_GROUND, IsTouchingTheGround());
     }
@@ -104,13 +106,14 @@ public class PlayerController : MonoBehaviour
             if (IsTouchingTheGround())
             {
                 playerRigidbody.AddForce(Vector2.up * jumpForceFactor, ForceMode2D.Impulse);
+                GetComponent<AudioSource>().Play();
             }
         }
     }
 
     bool IsTouchingTheGround()
     {
-        return Physics2D.Raycast(transform.position, Vector2.down, 1.5f, groundMask);
+        return Physics2D.Raycast(transform.position, Vector2.down, jumpRaycastDistance, groundMask);
     }
 
     public void Die()
@@ -132,6 +135,11 @@ public class PlayerController : MonoBehaviour
         this.healthPoints += points;
         if (this.healthPoints >= MAX_HEALTH)
             healthPoints = MAX_HEALTH;
+
+        if(healthPoints <=0 )
+        {
+            Die();
+        }
     }
 
     public void CollectMana(int points)
