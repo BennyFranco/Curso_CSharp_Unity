@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
 {
     public GameState currentGameState = GameState.menu;
 
+    public int collectedObject = 0;
+
     public static GameManager sharedInstance;
 
     private PlayerController controller;
@@ -29,6 +31,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         controller = GameObject.Find("Player").GetComponent<PlayerController>();
+        SetGameState(GameState.menu);
     }
 
     // Update is called once per frame
@@ -60,20 +63,31 @@ public class GameManager : MonoBehaviour
         if(newGameState == GameState.menu)
         {
             MenuManager.sharedInstance.ShowMainMenu();
+            MenuManager.sharedInstance.HideGameMenu();
+            MenuManager.sharedInstance.HideGameOverMenu();
         }
         else if(newGameState == GameState.inGame)
         {
             LevelManager.sharedInstance.RemoveAllLevelBlocks();
             LevelManager.sharedInstance.GenerateInitialBlocks();
             MenuManager.sharedInstance.HideMainMenu();
+            MenuManager.sharedInstance.ShowGameMenu();
+            MenuManager.sharedInstance.HideGameOverMenu();
             controller.StartGame();
         }
         else if (newGameState == GameState.gameOver)
         {
             // TODO: Game over logic here.
             MenuManager.sharedInstance.HideMainMenu();
+            MenuManager.sharedInstance.HideGameMenu();
+            MenuManager.sharedInstance.ShowGameOverMenu();
         }
 
         currentGameState = newGameState;
+    }
+
+    public void CollectObject(Collectable collectable)
+    {
+        collectedObject += collectable.value;
     }
 }
